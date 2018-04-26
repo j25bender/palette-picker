@@ -1,3 +1,10 @@
+const pageSetup = () => {
+  getProjects();
+  getPalettes();
+}
+
+$(document).ready( pageSetup );
+
 const paletteState = {
   palette: {"color1": "rgb(139, 50, 152)",
             "color2": "rgb(42, 17, 172)",
@@ -13,8 +20,7 @@ $(window).keypress((e) => {
     !$(document.activeElement).is('#title-input') &&
     !$(document.activeElement).is('#save-title')) {
     setRandomPalette();
-  }
-  // $('body').addClass('no-scroll');  
+    } 
 });
 
 const setRandomPalette = () => {
@@ -46,20 +52,26 @@ $('#color-pentagram').click((e) => {
 
 $('#save-title').click( async (e) => {
   const title = $('#title-input').val();
-  await fetch('/api/v1/projects', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      title
+  $('#title-input').val('');
+
+  if(!$('#select-options').children().text().includes(title)) {
+    await fetch('/api/v1/projects', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        title
+      })
     })
-  })
-  $('body').removeClass('no-scroll');
+  } else {
+    alert('Project Title Must Be Unique!')
+  }
 });
 
 $('#save-palette').click( async (e) => {
   createPalettes(paletteState.palette)
   const paletteName = $('#palette-input').val();
   const projectId = $('#select-options').val();
+  $('#palette-input').val('');
 
   await fetch('/api/v1/palettes', {
     method: 'POST',
@@ -68,30 +80,36 @@ $('#save-palette').click( async (e) => {
       palette_name: paletteName,
       project_id: parseInt(projectId),
       ...paletteState.palette})
-  })
-  $('body').removeClass('no-scroll');
+  });
+  getPalettes();
 });
 
 const deletePalette = async (e) => {
   const paletteId = e.target.id;
   $(e.target).parent().remove();
-  await fetch(`/api/v1/palettes/${paletteId}`, {
-    method: 'DELETE',
-    headers: {'Content-Type': 'application/json'}
-  });
+  try {
+    await fetch(`/api/v1/palettes/${paletteId}`, {
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'}
+    }) 
+  } catch(error) {
+    throw new Error
+  }
 };
 
 $('#project-container').on('click', '.delete', deletePalette);
 
-const getProjects = async () => {
+const getProjects = async (title) => {
   const initialFetch = await fetch('/api/v1/projects');
   const projects = await initialFetch.json();
+  console.log('projects', projects)
   projects.forEach(project => createProjects(project));
 }
 
 const createProjects = (project) => {
+  console.log('project', project)
   $('#select-options').append(`<option value=${project.id}>${project.title}</option>`);
-  $('#project-container').append(`<h2 id=${project.id}>${project.title}</h2>`)
+  $('#project-container').append(`<h2 id=${project.id} style='display:none'>${project.title}</h2>`)
 }
 
 const getPalettes = async () => {
@@ -101,8 +119,20 @@ const getPalettes = async () => {
 }
 
 const createPalettes = (palette) => {
-  const addColors = createColors(palette);  
-  $('#' + palette.project_id).append(`<div><h3 id=${palette.id}>${palette.palette_name}</h3><div id="palette-container">${addColors}</div><button class="delete" id=${palette.id}>DELETE</button></div>`);
+  console.log('palette', palette)
+  const addColors = createColors(palette);
+  $('#' + palette.project_id).css('display', 'inline');
+  $('#' + palette.project_id).append(`<div>
+                                        <h3 id=${palette.id}>
+                                          ${palette.palette_name}
+                                        </h3>
+                                        <div id="palette-container">
+                                          ${addColors}
+                                        </div>
+                                        <button class="delete" id=${palette.id}>
+                                          DELETE
+                                        </button>
+                                      </div>`);
 }
 
 const createColors = (palette) => {
@@ -114,11 +144,3 @@ const createColors = (palette) => {
   }
   return result;
 }
-
-const pageSetup = () => {
-  getProjects();
-  getPalettes();
-}
-
-$(document).ready( pageSetup );
- 

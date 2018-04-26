@@ -3,11 +3,6 @@ body {
   margin: 0;
 }
 
-/* .no-scroll {
-  height: 100%;
-  overflow: hidden;
-} */
-
 header {
   display: flex;
   flex-direction: row;
