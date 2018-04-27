@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Sedgwick+Ave');
+
+* {
+  font-family: 'Sedgwick Ave', cursive;
+  letter-spacing: 1px;
+}
+
 body {
   background-color: black;
   margin: 0;
@@ -118,6 +125,7 @@ hr {
 h2 {
   border: 1px solid ghostwhite;
   margin: 20px auto;
+  padding: 10px;
   height: 350px;
   width: 90%;
   overflow-y: scroll;
