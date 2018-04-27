@@ -65,6 +65,7 @@ $('#save-title').click( async (e) => {
         title
       })
     })
+    pageSetup();
   } else {
     alert('Project Title Must Be Unique!')
   }
@@ -87,7 +88,7 @@ $('#save-palette').click( async (e) => {
         project_id: parseInt(projectId),
         ...paletteState.palette})
     });
-    getPalettes();
+    pageSetup();
   } else {
     alert('Palette Names Within Each Project Must Be Unique!')
   }
@@ -120,6 +121,7 @@ const createProjects = (project) => {
 }
 
 const getPalettes = async () => {
+  $('.saved-palette').remove();    
   const initialFetch = await fetch('/api/v1/palettes');
   const palettes = await initialFetch.json();
   palettes.forEach(palette => createPalettes(palette));
@@ -128,7 +130,7 @@ const getPalettes = async () => {
 const createPalettes = (palette) => {
   const addColors = createColors(palette);
   $('#' + palette.project_id).css('display', 'inline');
-  $('#' + palette.project_id).append(`<div id="saved-palette">
+  $('#' + palette.project_id).append(`<div class="saved-palette">
                                         <h3 id=${palette.id}>
                                           ${palette.palette_name}
                                         </h3>
