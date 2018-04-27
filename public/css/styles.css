@@ -104,7 +104,7 @@ hr {
 }
 
 #project-container h3 {
-  border: 1px solid ghostwhite;
+  border-top: 1px solid ghostwhite;
   padding-top: 25px;
   margin-bottom: 0;
 }
@@ -148,4 +148,9 @@ h2 {
 
 #color {
   padding-top: 85px;
+}
+
+.delete {
+  height: 25px;
+  width: 65px;
 }
