@@ -32,7 +32,7 @@ DELETE /api/v1/palettes/:id
 ## Tests
 
 npm run test
-```
+
 
 ## Contributors
 
