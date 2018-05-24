@@ -35,6 +35,6 @@ npm run test
 ```
 
 ## Contributors
-```
+
 Jeff Bender
 
