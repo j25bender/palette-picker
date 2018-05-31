@@ -20,21 +20,19 @@ $(window).keypress((e) => {
     !$(document.activeElement).is('#title-input') &&
     !$(document.activeElement).is('#save-title')) {
     setRandomPalette();
-    e.preventDefault();
-    $(window).scrollTop(0);
     } 
 });
 
 const setRandomPalette = () => {
   palette = {};
   for(let i = 1; i <= 5; i++) {
-    if(!$(`#poly${i}`).hasClass('locked')) {
+    if(!$(`#poly${[i]}`).hasClass('locked')) {
       const elementColor = randomColor();
-      $(`#poly${i}`).css('fill', elementColor);
-      palette[`color${i}`] = elementColor;
+      $(`#poly${[i]}`).css('fill', elementColor);
+      palette[`color${[i]}`] = elementColor;
     } else {
-      const lockedColor = $(`#poly${i}`).css('fill');
-      palette[`color${i}`] = lockedColor;   
+      const lockedColor = $(`#poly${[i]}`).css('fill');
+      palette[`color${[i]}`] = lockedColor;   
     }
   }
   paletteState.palette = palette;
@@ -57,7 +55,6 @@ $('#save-title').click( async (e) => {
   $('#title-input').val('');
 
   if(!$('#select-options').children().text().includes(title)) {
-    $('#select-options').append(`<option>${title}</option>`);
     await fetch('/api/v1/projects', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -65,7 +62,6 @@ $('#save-title').click( async (e) => {
         title
       })
     })
-    pageSetup();
   } else {
     alert('Project Title Must Be Unique!')
   }
@@ -74,24 +70,18 @@ $('#save-title').click( async (e) => {
 $('#save-palette').click( async (e) => {
   createPalettes(paletteState.palette)
   const paletteName = $('#palette-input').val();
-  $('#palette-input').val('');
-  
   const projectId = $('#select-options').val();
-  const projectTitle = '.' + $('#select-options').text().trim();
+  $('#palette-input').val('');
 
-  if(!$(projectTitle).find('h3').text().includes(paletteName)) {
-    await fetch('/api/v1/palettes', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        palette_name: paletteName,
-        project_id: parseInt(projectId),
-        ...paletteState.palette})
-    });
-    pageSetup();
-  } else {
-    alert('Palette Names Within Each Project Must Be Unique!')
-  }
+  await fetch('/api/v1/palettes', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      palette_name: paletteName,
+      project_id: parseInt(projectId),
+      ...paletteState.palette})
+  });
+  getPalettes();
 });
 
 const deletePalette = async (e) => {
@@ -117,11 +107,10 @@ const getProjects = async (title) => {
 
 const createProjects = (project) => {
   $('#select-options').append(`<option value=${project.id}>${project.title}</option>`);
-  $('#project-container').append(`<h2 class=${project.title} id=${project.id} style='display:none'>${project.title}</h2>`)
+  $('#project-container').append(`<h2 id=${project.id} style='display:none'>${project.title}</h2>`)
 }
 
 const getPalettes = async () => {
-  $('.saved-palette').remove();    
   const initialFetch = await fetch('/api/v1/palettes');
   const palettes = await initialFetch.json();
   palettes.forEach(palette => createPalettes(palette));
@@ -130,7 +119,7 @@ const getPalettes = async () => {
 const createPalettes = (palette) => {
   const addColors = createColors(palette);
   $('#' + palette.project_id).css('display', 'inline');
-  $('#' + palette.project_id).append(`<div class="saved-palette">
+  $('#' + palette.project_id).append(`<div>
                                         <h3 id=${palette.id}>
                                           ${palette.palette_name}
                                         </h3>
@@ -147,7 +136,7 @@ const createColors = (palette) => {
   let result = '';
   for(let i = 1; i <= 5; i++) {
     if(palette) {
-      result += `<div id="color" style="background-color:${palette[`color${i}`]}">${palette[`color${i}`]}</div>`
+      result += `<div style="background-color:${palette[`color${i}`]}">${palette[`color${i}`]}</div>`
     }    
   }
   return result;
